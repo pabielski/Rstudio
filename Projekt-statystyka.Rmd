@@ -1,0 +1,421 @@
+---
+title: "Projekt Zaliczeniowy"
+author: "Patryk Bielski"
+date: '2022-06-12'
+output: ioslides_presentation
+
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+## Dane
+Dane 'Red Wine Quality'
+P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
+Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
+
+Dane wczytywane są bezpośrednio ze storny, jednak załączam dodatkowe pliki z danymi.
+```{r }
+redWineDane<-read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv", sep = ";")
+head(redWineDane)
+```
+```{r}
+whiteWineDane<-read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", sep=";")
+head(whiteWineDane)
+```
+## Miary pozycyjne
+minimalna i maksymalna wartość zawartości cukru
+```{r }
+r<-redWineDane$residual.sugar
+w<-whiteWineDane$residual.sugar
+min(r);max(r)
+min(w);max(w)
+```
+średnia (red wine)
+
+```{r}
+mean(r) 
+```
+średnia (white wine)
+
+```{r}
+mean(w) 
+```
+
+## Miary pozycyjne (2)
+mediana (red wine)
+```{r}
+median(r)
+```
+mediana (white wine)
+```{r}
+median(w)
+```
+kwartyle (red wine)
+```{r}
+quantile(r)
+```
+kwartyle (white wine)
+```{r}
+quantile(w)
+```
+
+
+## Miary rozproszenia (1)
+
+-rozstęp (red wine)
+```{r}
+max(r)-min(r)
+```
+-rozstęp (white wine)
+```{r}
+max(w)-min(w)
+```
+
+-roztęp międzykwartalny (red wine)
+```{r}
+quantile(r)[4]-quantile(r)[2]
+```
+-roztęp międzykwartalny (white wine)
+```{r}
+quantile(w)[4]-quantile(w)[2]
+```
+
+## Miary rozproszenia(2)
+-odchylenie przeciętne od mediany (red wine)
+```{r}
+mad(r)
+```
+-odchylenie przeciętne od mediany (white wine)
+```{r}
+mad(w)
+```
+## Miary rozproszenia (3)
+-wariancja (red wine)
+```{r}
+var(r)
+```
+-wariancja (white wine)
+```{r}
+var(w)
+```
+-dchylenie standardowe (red wine)
+```{r}
+sd(r)
+```
+-dchylenie standardowe (white wine)
+```{r}
+sd(w)
+```
+## Miary rozproszenia (4)
+- bląd standardowy(red wine) 
+```{r}
+sd(r)/sqrt(length(r))
+```
+ - bląd standardowy(white wine) 
+```{r}
+sd(w)/sqrt(length(w))
+```
+ współczynnik zmienności (red wine)
+```{r}
+sd(r)/mean(r)
+```
+ współczynnik zmienności (white wine)
+```{r}
+sd(w)/mean(w)
+```
+
+## Wnioski 
+Pierwszym wnioskiem, który rzuca się w oczy, jest dużo większa różnica pomiędzy minimalną, a maskymalną wartością zawartości curku w przypadku białego wina (rozstęp 65.2 / rozstęp mędzykwartalny 8.2). Wina czerwone widniejące w statystyce mają o wiele bardziej zbliżone wartości(rozstęp 14.6 / rozstęp mędzykwartalny 0.7). Połowa win czerwonych posiada zawartość cukru mniejszą lub równą 2.2, zaś w przyapdku win białych liczba ta wynosi 5.2. Odchylenie przeciętne od mediany win białych również jest dużo większe (5.337 do 0.445).Zróżnicowanie wartości w przypadku win białych jest duże, ponieważ wynosi 25.72577
+
+## Wnioski (2)
+Współczynnik zmienności w przypadku win białych jest duży i wynosi 79%. W przyadku win czerwonych jest mnijeszy (55%)
+Przeciętna wartość średnia w przypadku win białych wynosi 6.39 
+Przeciętna wartość średnia w przypadku win czerwonych wynosi 2.53 i jest o wiele bardziej zbliżona do mediany.
+
+## Histogram (Red Wine)
+
+```{r}
+hist(r,breaks=10,probability=T,col=rainbow(9),ylab="")
+rug(r,col="blue")
+lines(density(r),lty=2,lwd=3,col="red")
+curve(dnorm(x,mean=mean(r),sd=sd(r)),add=T, col="purple",lty=3,lwd=3)
+```
+
+
+
+## Histogram (White Wine)
+```{r}
+hist(w,breaks=10,probability=T,col=rainbow(9),ylab="")
+rug(w,col="blue")
+lines(density(w),lty=2,lwd=3,col="red")
+curve(dnorm(x,mean=mean(w),sd=sd(w)),add=T, col="purple",lty=3,lwd=3)
+```
+
+## Boxplot (Red Wine)
+```{r}
+boxplot(r,col="darkred", horizontal=T)
+```
+
+
+## Boxplot (White Wine)
+```{r}
+boxplot(w,col="blanchedalmond", horizontal=T)
+```
+
+## Testowanie hipotez
+
+hipoteza 0 : sr = 3 <br>
+hipoteza 1 < 3
+```{r}
+m0<-3
+t_obl = (mean(r)-m0)/sd(r)*sqrt(length(r))
+print(t_obl)
+alfa<-0.05
+t_kryt<-qnorm(1-alfa)
+print(t_kryt)
+```
+Wniosek:
+Ponieważ t_obl < t_kryt to hipotezę zerową należy odrzucić
+
+## Testowanie hipotez 2
+hipoteza 0 : sr = 5 <br>
+hipoteza 1 : sr =/= 5
+```{r}
+m1<-5
+u_obl = (mean(w)-m1)/sd(w)*sqrt(length(w))
+print(u_obl)
+alfa<-0.05
+u_kryt<-qnorm(1-alfa/2)
+print(u_kryt)
+```
+Wniosek:
+Ponieważ |u_obl| > u_kryt to hipotezę zerową należy odrzucić
+
+## Porównanie średnich 
+Porównanie średniego poziomu cukru  w winie białym oraz czerwonym 
+H0: sr1 = sr2
+H1: sr =/= sr2
+
+```{r}
+alfa =.05
+u_oblComp<- (mean(r)-mean(w))/ sqrt(var(r)/length(r) + var(w)/length(w) )
+u_krytComp<-qnorm(1-alfa/2)
+print(u_oblComp)
+print(u_krytComp)
+```
+Ponieważ |u_oblComp| = 47.8 > u_krytComp = 1.96 to H0 należy odrzucić na korzyść H1
+
+## Testowanie normalności ukladu
+H0: reszty z układu normalnego 
+H1: reszty nie są z układu nomralnego
+
+```{r}
+shapiro.test(r)
+```
+Wniosek:
+poniewaz obliczone p-value 2.2e-16 < alfa = 0.05 to H0 należy odrzucić
+```{r}
+shapiro.test(w)
+```
+Wniosek:
+poniewaz obliczone p-value 2.2e-16 < alfa = 0.05 to H0 należy odrzucić
+
+
+
+
+
+
+# Dane na podstawie poziomu pH
+
+## Miary pozycyjne
+minimalna i maksymalna wartość pH
+```{r }
+pr<-redWineDane$pH
+pw<-whiteWineDane$pH
+min(pr);max(pr)
+min(pw);max(pw)
+```
+średnia (red wine)
+
+```{r}
+mean(pr) 
+```
+średnia (white wine)
+
+```{r}
+mean(pw) 
+```
+
+## Miary pozycyjne (2)
+mediana (red wine)
+```{r}
+median(pr)
+```
+mediana (white wine)
+```{r}
+median(pw)
+```
+kwartyle (red wine)
+```{r}
+quantile(pr)
+```
+kwartyle (white wine)
+```{r}
+quantile(pw)
+```
+
+
+## Miary rozproszenia (1)
+
+-rozstęp (red wine)
+```{r}
+max(pr)-min(pr)
+```
+-rozstęp (white wine)
+```{r}
+max(pw)-min(pw)
+```
+
+-roztęp międzykwartalny (red wine)
+```{r}
+quantile(pr)[4]-quantile(pr)[2]
+```
+-roztęp międzykwartalny (white wine)
+```{r}
+quantile(pw)[4]-quantile(pw)[2]
+```
+
+## Miary rozproszenia(2)
+-odchylenie przeciętne od mediany (red wine)
+```{r}
+mad(pr)
+```
+-odchylenie przeciętne od mediany (white wine)
+```{r}
+mad(pw)
+```
+## Miary rozproszenia (3)
+-wariancja (red wine)
+```{r}
+var(pr)
+```
+-wariancja (white wine)
+```{r}
+var(pw)
+```
+-dchylenie standardowe (red wine)
+```{r}
+sd(pr)
+```
+-dchylenie standardowe (white wine)
+```{r}
+sd(pw)
+```
+## Miary rozproszenia (4)
+- bląd standardowy(red wine) 
+```{r}
+sd(pr)/sqrt(length(pr))
+```
+ - bląd standardowy(white wine) 
+```{r}
+sd(pw)/sqrt(length(pw))
+```
+ współczynnik zmienności (red wine)
+```{r}
+sd(pr)/mean(pr)
+```
+ współczynnik zmienności (white wine)
+```{r}
+sd(pw)/mean(pw)
+```
+
+## Wnioski 
+Pierwszym wnioskiem jest niewielka różnica pomiędzy minimalną, a maskymalną wartością poziomu pH w przypadku obu rodzajów wina ( rozstęp na poziomie 1.27 oraz 1.1). Mediana wynosi 3.31 w przyadku czerwonego wina oraz 3.18 w przyadku białego, zaś średnia kolejno 3.31 i 3.19. Mediana i średnia mają praktycznie takie same wartości. Rozstęp międzykwartalny w obu przypadkach wynosi 0.19 i jest bardzo niewielki. Odchylenie przeciętne od mediany wynosi 0.15. Współczynnik zmienności w przypadku win białych jest nieiwielki i wynosi 4.66%. W przyadku win czerwonych jest prawie taki sam (4.74%)
+
+## Histogram (Red Wine)
+
+```{r}
+hist(pr,breaks=10,probability=T,col=rainbow(9),ylab="")
+rug(pr,col="blue")
+lines(density(pr),lty=2,lwd=3,col="red")
+curve(dnorm(x,mean=mean(pr),sd=sd(pr)),add=T, col="purple",lty=3,lwd=3)
+```
+
+
+
+## Histogram (White Wine)
+```{r}
+hist(pw,breaks=10,probability=T,col=rainbow(9),ylab="")
+rug(pw,col="blue")
+lines(density(pw),lty=2,lwd=3,col="red")
+curve(dnorm(x,mean=mean(pw),sd=sd(pw)),add=T, col="purple",lty=3,lwd=3)
+```
+
+## Boxplot (Red Wine)
+```{r}
+boxplot(pr,col="darkred", horizontal=T)
+```
+
+
+## Boxplot (White Wine)
+```{r}
+boxplot(pw,col="blanchedalmond", horizontal=T)
+```
+
+## Testowanie hipotez
+
+hipoteza 0 : sr = 3 <br>
+hipoteza 1 < 3
+```{r}
+m0<-3
+t_oblp = (mean(pr)-m0)/sd(pr)*sqrt(length(pr))
+print(t_oblp)
+alfa<-0.05
+t_krytp<-qnorm(1-alfa)
+print(t_krytp)
+```
+Wniosek:
+Ponieważ t_oblp > - t_krytp nie ma podstaw do odrzucenia H0
+
+## Testowanie hipotez 2
+hipoteza 0 : sr = 5 <br>
+hipoteza 1 : sr =/= 5
+```{r}
+m1<-5 
+u_oblp = (mean(pw)-m1)/sd(pw)*sqrt(length(pw))
+print(u_oblp)
+alfa<-0.05
+u_krytp<-qnorm(1-alfa/2)
+print(u_krytp)
+```
+Wniosek:
+Ponieważ |u_oblp| > u_krytp to hipotezę zerową należy odrzucić
+
+
+## Porownanie srednich 
+Porównanie średniego poziomu pH w winie białym oraz czerwonym z alfa o wartości 0.01
+H0: sr1 = sr2
+H1: sr =/= sr2
+
+```{r}
+alfa =.01
+u_oblComp<- (mean(pr)-mean(pw))/ sqrt(var(pr)/length(pr) + var(pw)/length(pw) )
+u_krytComp<-qnorm(1-alfa/2)
+print(u_oblComp)
+print(u_krytComp)
+```
+Ponieważ |u_oblComp| = 27.7 > u_krytComp = 2.57 to H0 należy odrzucić na korzyść H1
+
+## Testowanie normalnosci ukladu
+H0: reszty z układu normalnego 
+H1: reszty nie są z układu nomralnego
+```{r}
+shapiro.test(pr)
+```
+Wniosek:
+poniewaz obliczone p-value 1.712e-06 < alfa = 0.05 to H0 należy odrzucić
+```{r}
+shapiro.test(pw)
+```
+Wniosek:
+poniewaz obliczone p-value 2.2e-16 < alfa = 0.05 to H0 należy odrzucić
